@@ -1,0 +1,59 @@
+# ----------------------------
+# Python / venv
+# ----------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+# ----------------------------
+# Jupyter
+# ----------------------------
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Optional: keep notebooks clean (uncomment if you want to avoid committing notebook output)
+# **/*.ipynb
+
+# ----------------------------
+# Data (do not commit datasets)
+# ----------------------------
+data/raw/
+data/processed/
+*.csv
+*.parquet
+*.feather
+*.pkl
+*.pickle
+*.joblib
+*.sqlite
+*.db
+
+# ----------------------------
+# Reports / artifacts
+# ----------------------------
+reports/figures/*.png
+reports/figures/*.jpg
+reports/figures/*.svg
+reports/*.html
+
+# If you want to KEEP figures in git for interview-readiness, comment out the above block.
+
+# ----------------------------
+# OS / editor
+# ----------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ----------------------------
+# Logs
+# ----------------------------
+*.log
+*.egg-info/
