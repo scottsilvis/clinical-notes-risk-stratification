@@ -37,10 +37,9 @@ data/processed/
 # ----------------------------
 # Reports / artifacts
 # ----------------------------
-reports/figures/*.png
-reports/figures/*.jpg
-reports/figures/*.svg
 reports/*.html
+reports/*.pdf
+reports/tmp/
 
 # If you want to KEEP figures in git for interview-readiness, comment out the above block.
 
