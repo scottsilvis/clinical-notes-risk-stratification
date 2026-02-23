@@ -156,5 +156,11 @@ TF-IDF represents text by weighting words based on how frequent they are in a do
 they are across the corpus, which helps emphasize informative terms while down-weighting 
 boilerplate language.
 
+A text-only TF-IDF + logistic regression baseline achieved ROC-AUC 0.679, demonstrating that 
+clinical note language encodes outcome-relevant information. This is slightly higher than the 
+structured-only baseline (0.670), motivating a combined model to test incremental value beyond 
+structured data.
+
+
 
 
