@@ -1,29 +1,160 @@
+- [Rationale](#rationale)
+- [Data Explained](#data-explained)
+- [Python Scripts](#python-scripts)
+  - [data.py](#datapy)
+  - [model.py](#modelpy)
+- [Exploratory Data Analysis](#exploratory-data-analysis)
+- [NLP](#nlp)
+
+
+
 # Rationale 
 
-While I have years of experience with various statistical testing and exploratory data analysis, I have not had much reason to look at language models and ... . To shore up some of my limited experience, I decided to use a combination of self teaching and AI to help me build a project to expose me to these areas of Data Science that I am less famaliar with. 
+While I have years of experience with various statistical testing and exploratory data analysis, I 
+have not had much reason to look at language models. To shore up some of my limited 
+experience, I decided to use a combination of self teaching and AI to help me build a project to 
+expose me to these areas of Data Science that I am less famaliar with. 
 
-In this way, I built a prototype to predict 30-day readmission risk using structured patient variables, then extended it with NLP features from clinical notes to quantify lift. The data is fully synthetic, and I created three .csv files to represent three sources of data that I might see in a real world application. These three files are patient.csv, outcomes.csv, and notes.csv.
+In this way, I built a prototype to predict 30-day readmission risk using structured patient 
+variables, then extended it with NLP features from clinical notes to quantify lift. The data is 
+fully synthetic, and I created three .csv files to represent three sources of data that I might see
+ in a real world application. These three files are patient.csv, outcomes.csv, and notes.csv.
 
-The patients.csv dataset contains many variables that one might know before discharge. eg. age, comorbidity burden, length of stay, prior admissions. 
+---
+
+# Data Explained
+
+The patients.csv dataset contains many variables that one might know before discharge. eg. age, 
+comorbidity burden, length of stay, prior admissions. 
 
 outcomes.csv contains the predicted value readmit_30. 
 
 notes.csv contains the Natural Language Processing data to be added to the model after baseline. 
 
-The data.py file is responsible for creating the three datasets used in this project. While the initial version of this file was generated with the help of an AI model, I reviewed it closely and made sure I understood how the data were being created, as this is important for justifying the modeling decisions later in the project.
+---
 
-The script accepts three command-line inputs: --generate, --n_patients, and --seed. The --generate flag tells the script to actually create the data. If no values are supplied for the other arguments, the script defaults to generating a dataset with 1,500 patients using a fixed random seed of 7. Using a fixed seed ensures the dataset is reproducible, meaning the same data will be generated every time the script is run with the same inputs. Changing the seed produces a different dataset with the same overall statistical structure.
+# Python Scripts
 
-One section of the file is dedicated to generating clinical notes for downstream NLP modeling. This section defines several groups of phrases: base phrases, low-risk phrases, high-risk phrases, and filler phrases. Each clinical note begins with a small set of base phrases that mimic templated discharge documentation. The body of the note is then constructed by repeatedly selecting phrases from either the low-risk or high-risk lists. The choice of which type of phrase to include is driven by the patient’s underlying risk: for each phrase, a random number is compared to the patient’s risk value, and higher-risk patients are more likely to receive high-risk phrases. This process is repeated a random number of times (between 4 and 9) to introduce variability in note length. In some cases, an additional filler sentence is appended to further diversify the notes. The final note is created by joining the base phrases and selected content into a single text string.
+## data.py
 
-Another section of the file generates the structured patient variables. Patient age is drawn from a normal distribution and constrained to realistic values. Sex is assigned randomly with a slight imbalance (52% female, 48% male). Comorbidity count and prior admission count are generated using Poisson distributions, which are appropriate for modeling count-based variables. Length of stay is generated using a gamma distribution, which produces a right-skewed distribution that better reflects real hospital stays, where short stays are common and long stays are less frequent.
-A latent readmission risk score is then calculated as a weighted combination of these structured variables. The weights are chosen to reflect plausible clinical relationships, such as higher risk with increasing comorbidity burden, more prior admissions, longer length of stay, and older age. Random noise is added to this score to prevent the data from being unrealistically clean and to represent unmeasured clinical and social factors. This risk score is converted into a probability using a logistic transformation, ensuring the result falls between 0 and 1. Finally, the binary readmission outcome (readmit_30d) is generated by randomly sampling based on this probability, so patients with higher risk are more likely—but not guaranteed—to be readmitted.
+The data.py file is responsible for creating the three datasets used in this project. While the 
+initial version of this file was generated with the help of an AI model, I reviewed it closely and 
+made sure I understood how the data were being created, as this is important for justifying the 
+modeling decisions later in the project.
 
-The model.py file is much simpler than the previously discussed data.py file. It contains three functions: load_structured_data, run_baseline, and main.
+The script accepts three command-line inputs: --generate, --n_patients, and --seed. The --generate 
+flag tells the script to actually create the data. If no values are supplied for the other 
+arguments, the script defaults to generating a dataset with 1,500 patients using a fixed random 
+seed of 7. Using a fixed seed ensures the dataset is reproducible, meaning the same data will be 
+generated every time the script is run with the same inputs. Changing the seed produces a different 
+dataset with the same overall statistical structure.
 
-The load_structured_data function requires a path variable, which is used to read the patients.csv and outcomes.csv files. These two datasets are merged using an inner join on patient_id. This join ensures that each row of structured patient data is correctly aligned with its corresponding outcome, rather than relying on row order alone. After the join, the combined dataframe is split into two objects: X and y.
-X contains the structured predictor variables (age, comorbidity_count, prior_admits, and los_days), while y contains only the outcome variable, readmit_30d.
+One section of the file is dedicated to generating clinical notes for downstream NLP modeling. 
+This section defines several groups of phrases: base phrases, low-risk phrases, high-risk phrases, 
+and filler phrases. Each clinical note begins with a small set of base phrases that mimic templated 
+discharge documentation. The body of the note is then constructed by repeatedly selecting phrases 
+from either the low-risk or high-risk lists. The choice of which type of phrase to include is 
+driven by the patient’s underlying risk: for each phrase, a random number is compared to the 
+patient’s risk value, and higher-risk patients are more likely to receive high-risk phrases. This 
+process is repeated a random number of times (between 4 and 9) to introduce variability in note 
+length. In some cases, an additional filler sentence is appended to further diversify the notes. 
+The final note is created by joining the base phrases and selected content into a single text 
+string.
 
-The run_baseline function also requires a path variable, along with a random seed that defaults to 7. The primary purpose of this function is to train and evaluate a baseline model. It begins by calling load_structured_data to retrieve the feature matrix (X) and outcome vector (y). The data are then split into training and testing sets, using 75% of the data for training and 25% for testing, with stratification to preserve the outcome distribution. A logistic regression model is instantiated with a maximum of 1,000 optimization iterations and then fit to the training data. Model performance is evaluated by generating predicted probabilities for the test set and computing the ROC-AUC by comparing those probabilities to the true test labels. This value is printed to the terminal, and an ROC curve is generated and saved as a figure.
+Another section of the file generates the structured patient variables. Patient age is drawn from 
+a normal distribution and constrained to realistic values. Sex is assigned randomly with a slight 
+imbalance (52% female, 48% male). Comorbidity count and prior admission count are generated using 
+Poisson distributions, which are appropriate for modeling count-based variables. Length of stay is 
+generated using a gamma distribution, which produces a right-skewed distribution that better 
+reflects real hospital stays, where short stays are common and long stays are less frequent.
 
-The final function, main, serves as the entry point for the script. It defines the directory structure used by the model and triggers execution of the baseline modeling workflow when the appropriate command-line flag is provided. The intention is to add functionality to this script as the project progresses. Most/All of the model building should be contained in this script. 
+A latent readmission risk score is then calculated as a weighted combination of these structured 
+variables. The weights are chosen to reflect plausible clinical relationships, such as higher risk 
+with increasing comorbidity burden, more prior admissions, longer length of stay, and older age. 
+Random noise is added to this score to prevent the data from being unrealistically clean and to 
+represent unmeasured clinical and social factors. This risk score is converted into a probability 
+using a logistic transformation, ensuring the result falls between 0 and 1. Finally, the binary 
+readmission outcome (readmit_30d) is generated by randomly sampling based on this probability, so 
+patients with higher risk are more likely—but not guaranteed—to be readmitted.
+
+
+
+## model.py
+
+The model.py file is much simpler than the previously discussed data.py file. It contains three 
+functions: load_structured_data, run_baseline, and main.
+
+The load_structured_data function requires a path variable, which is used to read the patients.csv 
+and outcomes.csv files. These two datasets are merged using an inner join on patient_id. This join 
+ensures that each row of structured patient data is correctly aligned with its corresponding 
+outcome, rather than relying on row order alone. After the join, the combined dataframe is split 
+into two objects: X and y.
+X contains the structured predictor variables (age, comorbidity_count, prior_admits, and los_days), 
+while y contains only the outcome variable, readmit_30d.
+
+The run_baseline function also requires a path variable, along with a random seed that defaults to 
+seven. The primary purpose of this function is to train and evaluate a baseline model. It begins by 
+calling load_structured_data to retrieve the feature matrix (X) and outcome vector (y). The data 
+are then split into training and testing sets, using 75% of the data for training and 25% for 
+testing, with stratification to preserve the outcome distribution. A logistic regression model is 
+instantiated with a maximum of 1,000 optimization iterations and then fit to the training data. 
+Model performance is evaluated by generating predicted probabilities for the test set and computing 
+the ROC-AUC by comparing those probabilities to the true test labels. This value is printed to the 
+terminal, and an ROC curve is generated and saved as a figure.
+
+The final function, main, serves as the entry point for the script. It defines the directory 
+structure used by the model and triggers execution of the baseline modeling workflow when the 
+appropriate command-line flag is provided. The intention is to add functionality to this script as 
+the project progresses. Most/All of the model building should be contained in this script. 
+
+The next step of the project is to perform Exploratory Data Analysis to confirm the model before we 
+add the complexity of the language models. 
+
+---
+
+# Exploratory Data Analysis
+
+In the EDA phase, I aim to answer 5 questions:
+
+1. What percentage of patients are readmitted?
+   - If the rate of readmitance is too low it could change the types of analyses we need to do
+2. Does the data make sense conceptually? 
+   - For example, increase comorbidity theoreticall should lead to increase readmittance 
+3. Are there any obvious data issues?
+   - missing data, weird ranges, etc
+4. How seperable are the outcome categories?
+   - if we have distinct seperate peaks it bodes well for the model performing well
+  
+Refer to 01_eda.ipynb for the code used to answer the above questoins. 
+  
+During EDA I saw a moderately balanced readmission outcome with reasonable feature distributions 
+and no major data quality issues. Individual structured predictors demonstrate limited univariate 
+separability, although baseline modeling suggests meaningful signal when features are combined. 
+These findings motivate the use of NLP techniques to evaluate whether unstructured clinical notes 
+provide incremental predictive value beyond structured data alone.
+
+---
+
+# NLP
+
+The entire point of this section is to answer a single questoin. Do the clinical notes differ by 
+outcome in a way that adds predictive signal beyond structured data? I started with a structured 
+baseline (model_a = AUC 0.670). Two things need to happen for this to be a successful addition. The 
+first is I must create a text-only model (model_b) to validate that clinical notes encode 
+outcome-relevant signal at all. The dataset will be considered outcome-relevant if the model_b 
+AUC > 0.50. This is the threshold that signifies random behavior of the model. Even if the 
+text-only model underperforms the structured baseline, the key test is whether combining the text 
+and structured models (model_c) produces an AUC lift (meaning AUC model_c > AUC model_a). 
+
+Because clinical notes are unstructured text, they cannot be used directly by a statistical 
+classifier. The first step in NLP modeling is therefore feature extraction: converting free-text 
+notes into numerical features that retain clinically meaningful information. For this baseline 
+analysis, I use Term Frequency–Inverse Document Frequency (TF-IDF), a standard and interpretable 
+method for representing text.
+
+TF-IDF represents text by weighting words based on how frequent they are in a document but how rare 
+they are across the corpus, which helps emphasize informative terms while down-weighting 
+boilerplate language.
+
+
+
