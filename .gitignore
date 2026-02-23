@@ -23,7 +23,6 @@ build/
 # ----------------------------
 # Data (do not commit datasets)
 # ----------------------------
-*.csv
 *.parquet
 *.feather
 *.pkl
