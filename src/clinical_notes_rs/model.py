@@ -12,10 +12,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.compose import ColumnTransformer
 
-# load_structured_data takes the variable processed_dir and uses it to locate the patients.csv, 
-# notes.csv, and outcomes.csv files. These are loaded using the read_csv function in the pandas 
-# library. because of the increasing complexity of this file, I have added sanity checks to look 
-# for duplicate patient_ids. The three dataframes are merged on the key patient_id. The type of 
+# load_joined_clinical_data takes the variable processed_dir and uses it to locate the 
+# patients.csv, notes.csv, and outcomes.csv files. These are loaded using the read_csv function in 
+# the pandas library. because of the increasing complexity of this file, I have added sanity checks 
+# to look for duplicate patient_ids. Before this, I remap the sex column from M/F to 1/0 to avoid 
+# complicatoins in the models. The three dataframes are merged on the key patient_id. The type of 
 # join in this case is an inner join for merging patients and outcomes, and a left join for merging 
 # notes. This is because we want to keep all patients that have outcomes data, even if they are 
 # missing notes. I then added sanity checks to ensure the required columns are present in each of 
@@ -142,7 +143,7 @@ def run_baseline(processed_dir: Path, out_dir: Path, seed: int = 7) -> None:
 # classifier. A logistic regression model is then fit to this data along with the outcome data. The 
 # model is then used to predict probabilities on the test set, and the ROC-AUC score is calculated 
 # and printed. A ROC curve is then plotted using the true labels and predicted probabilities. The 
-# figure is saved to the out_dir directory as baseline_roc.png.
+# figure is saved to the out_dir directory as roc_text_baseline.png.
 
 
 def run_text_baseline(processed_dir: Path, out_dir: Path, seed: int = 7) -> None:
@@ -190,20 +191,19 @@ def run_text_baseline(processed_dir: Path, out_dir: Path, seed: int = 7) -> None
 
     return auc
 
-# The function run_text_baseline takes the variable processed_dir and uses it when it calls the 
-# function load_joined_clinical_data. The function run_text_baseline also accepts the variable 
-# seed, which it uses when calling the function make_train_test_split. run_text_baseline accepts 
-# the datafame returned by load_joined_clinical_data and immedately passes it to 
-# make_train_test_split. The output of this is train_df and test_df. This is this split into 
-# z_train, y_train, z_test, and y_test. The package scikit-learn is used to create a pipeline that 
-# consists of two steps: a TfidfVectorizer and a LogisticRegression. The vectorizer is configured 
-# to consider both unigrams and bigrams, convert all text to lowercase, and removes English stop 
-# words. TF-IDF assigns each word or phrase a unique index and represents each document as a sparse 
-# vector of TF-IDF weights rather than raw counts. These vectors are then used as inputs to the 
-# classifier. A logistic regression model is then fit to this data along with the outcome data. The 
-# model is then used to predict probabilities on the test set, and the ROC-AUC score is calculated 
-# and printed. A ROC curve is then plotted using the true labels and predicted probabilities. The 
-# figure is saved to the out_dir directory as baseline_roc.png.
+# The function run_combined_model takes the variable processed_dir and uses it when it calls the 
+# function load_joined_clinical_data. This function also accepts the variable seed, which it uses 
+# when calling the function make_train_test_split. run_combined_model accepts the datafame 
+# returned by load_joined_clinical_data and immedately passes it to make_train_test_split. The 
+# output of this is train_df and test_df. This is this split into numeric and text features, which
+# are used to make the X_train and X_test variables. The preprocessor is defined as a 
+# ColumnTransformer that applies a TfidfVectorizer to the text feature (note_text) and passes 
+# through the numeric features. The TfidfVectorizer is configured to consider both unigrams and 
+# bigrams, convert all text to lowercase, and removes English stop words. The package scikit-learn 
+# is used to create a pipeline that the above-mentioned preprocessing steps and a Logistic 
+# Regression. The model is then used to predict probabilities on the test set, and the ROC-AUC 
+# score is calculated and printed. A ROC curve is then plotted using the true labels and predicted 
+# probabilities. The figure is saved to the out_dir directory as roc_combined.png.
 
 
 def run_combined_model(processed_dir: Path, out_dir: Path, seed: int = 7) -> None:
