@@ -161,6 +161,21 @@ clinical note language encodes outcome-relevant information. This is slightly hi
 structured-only baseline (0.670), motivating a combined model to test incremental value beyond 
 structured data.
 
+The next step is to build the combined model, which will hopefully have a higher ROC-AUC than 
+model_a and model_b.  
 
+Before I can do that, I need to rewrite portions of model.py in an attempt to make it more usable
+in the future, but also to add some sanity checks. Because the split dataset section of the 
+function is duplicated in both the baseline models, and by extension would be necessary in the 
+combined model, I decided to pull that out and make it its own function. This should have the 
+benifit of ensuring that all three models are working on exactly the same data. I had to mutate the
+Sex variable from M/F to 1/0, otherwise it broke the combind model. I decided to do this when I read
+the data in, instead within the model so all models had the same data. I felt confident about this 
+because I was not reclassifying categories, but just changing them from character to numerical. 
 
+All three models now work. I started with a structured baseline (AUC 0.670), then built a text-only 
+TF-IDF model (AUC 0.679) to confirm that notes contained outcome-relevant signal. Finally, I 
+combined structured and text features using a unified pipeline with a shared train/test split, 
+which produced an AUC of 0.687. This demonstrates that clinical notes add incremental predictive 
+value beyond structured data.
 

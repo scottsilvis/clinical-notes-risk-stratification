@@ -17,12 +17,15 @@ build/
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
 
-# Optional: keep notebooks clean (uncomment if you want to avoid committing notebook output)
-# **/*.ipynb
+# ----------------------------
+# Generated data (synthetic)
+# ----------------------------
+data/
 
 # ----------------------------
 # Data (do not commit datasets)
 # ----------------------------
+*.csv
 *.parquet
 *.feather
 *.pkl
