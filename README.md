@@ -28,26 +28,26 @@ This repository is designed as a quick demonstration of:
 ## Repository Structure
 
 ```text
-clinical-notes-risk-stratification/
-  README.md
-  .gitignore
-  data/
-    raw/                       # gitignored
-    processed/                 # gitignored
-  notebooks/
-    01_eda.ipynb
-    02_nlp_features.ipynb
-    03_modeling.ipynb
-  src/
-    clinical_notes_rs/
-      __init__.py
-      config.py                # config constants (paths, seeds, etc.)
-      data.py                  # data generation/loading
-      features.py              # feature engineering (structured + NLP)
-      model.py                 # training utilities
-      eval.py                  # evaluation + reporting
-  reports/
-    figures/
-  docs/
-    one_pager.md               # stakeholder-facing summary
+.
+├── README.md
+├── .gitignore
+├── data/
+│   ├── raw/                       # gitignored
+│   └── processed/                 # gitignored
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_nlp_features.ipynb
+    └── 03_modeling.ipynb
+├── src/
+│   └── clinical_notes_rs/
+│       ├── __init__.py
+│       ├── config.py              # config constants (paths, seeds, etc.)
+│       ├── data.py                # data generation/loading
+│       ├── features.py            # feature engineering (structured + NLP)
+│       ├── model.py               # training utilities
+│       └── eval.py                # evaluation + reporting
+├── reports/
+│   └── figures/
+├── docs/
+│   └── one_pager.md               # stakeholder-facing summary
 ```
