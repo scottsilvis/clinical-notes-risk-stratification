@@ -31,25 +31,25 @@ This repository is designed as a quick demonstration of:
 .
 ├── README.md
 ├── .gitignore
+├── requirements.txt
+├── artifacts/
 ├── data/
-│   ├── raw/                       # gitignored
-│   └── processed/                 # gitignored
+│   ├── raw/                       
+│   └── processed/     
+├── docs/
+│   └── one_pager.md               # stakeholder-facing summary            
 ├── notebooks/
-│   ├── 01_eda.ipynb
-│   ├── 02_nlp_features.ipynb
-    └── 03_modeling.ipynb
-├── src/
-│   └── clinical_notes_rs/
-│       ├── __init__.py
-│       ├── config.py              # config constants (paths, seeds, etc.)
-│       ├── data.py                # data generation/loading
-│       ├── features.py            # feature engineering (structured + NLP)
-│       ├── model.py               # training utilities
-│       └── eval.py                # evaluation + reporting
+│   └── 01_eda.ipynb
 ├── reports/
 │   └── figures/
-├── docs/
-│   └── one_pager.md               # stakeholder-facing summary
+└── src/
+    └── clinical_notes_rs/
+        ├── __init__.py
+        ├── config.py              # config constants (paths, seeds, etc.)
+        ├── data.py                # data generation/loading
+        └── model.py               # training utilities
+
+
 ```
 ---
 
