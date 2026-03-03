@@ -18,11 +18,6 @@ build/
 **/.ipynb_checkpoints/
 
 # ----------------------------
-# Generated data (synthetic)
-# ----------------------------
-data/
-
-# ----------------------------
 # Data (do not commit datasets)
 # ----------------------------
 *.csv
@@ -33,6 +28,10 @@ data/
 *.joblib
 *.sqlite
 *.db
+# Keep folder placeholders
+!data/.gitkeep
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 
 # ----------------------------
 # Reports / artifacts
