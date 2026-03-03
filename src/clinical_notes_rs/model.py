@@ -1,16 +1,49 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import pandas
+import json
+import joblib
+from datetime import datetime
+from pathlib import Path
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import RocCurveDisplay, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.compose import ColumnTransformer
+
+# save_model_artifacts takes a trained model and saves it to disk along with metadata about the 
+# model. The function accepts the following parameters: model (the trained model object), 
+# artifacts_dir (the directory where the model and metadata should be saved), model_name (a string 
+# name for the model), and seed (the random seed used for training the model). The function first 
+# creates the artifacts directory if it does not already exist. It then saves the model using 
+# joblib.dump. Next, it creates a metadata dictionary containing information about the model, 
+# including the model name, creation time, etc. Finally, it saves the metadata as a JSON file 
+# in the artifacts directory.
+
+def save_model_artifacts(model, artifacts_dir: Path, *, model_name: str, seed: int = 7) -> None:
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    joblib.dump(model, artifacts_dir / "model.joblib")
+
+    metadata = {
+        "model_name": model_name,
+        "created_utc": datetime.utcnow().isoformat() + "Z",
+        "framework": "scikit-learn",
+        "artifact": "model.joblib",
+        "positive_class": 1,
+        "target": "readmit_30d",
+        "seed": seed,
+        "inputs": {
+            "numeric": ["age", "sex", "comorbidity_count", "prior_admits", "los_days"],
+            "text": ["note_text"],
+        },
+        "notes": "Model C: ColumnTransformer(TF-IDF on note_text + passthrough numeric) -> LogisticRegression.",
+    }
+
+    (artifacts_dir / "metadata.json").write_text(json.dumps(metadata, indent=2))
 
 # load_joined_clinical_data takes the variable processed_dir and uses it to locate the 
 # patients.csv, notes.csv, and outcomes.csv files. These are loaded using the read_csv function in 
@@ -203,7 +236,9 @@ def run_text_baseline(processed_dir: Path, out_dir: Path, seed: int = 7) -> None
 # is used to create a pipeline that the above-mentioned preprocessing steps and a Logistic 
 # Regression. The model is then used to predict probabilities on the test set, and the ROC-AUC 
 # score is calculated and printed. A ROC curve is then plotted using the true labels and predicted 
-# probabilities. The figure is saved to the out_dir directory as roc_combined.png.
+# probabilities. The figure is saved to the out_dir directory as roc_combined.png. This model was 
+# modified to save the model artifacts using the save_model_artifacts function, which saves the 
+# trained model and metadata about the model to disk for future reference and reproducibility.
 
 
 def run_combined_model(processed_dir: Path, out_dir: Path, seed: int = 7) -> None:
@@ -262,6 +297,10 @@ def run_combined_model(processed_dir: Path, out_dir: Path, seed: int = 7) -> Non
     out_dir.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_dir / "roc_combined.png", dpi=200, bbox_inches="tight")
     plt.close()
+
+    artifacts_dir = Path.cwd() / "artifacts"
+    save_model_artifacts(plt.clf, artifacts_dir, model_name="model_c_combined_tfidf_lr", seed=seed)
+    print(f"Saved artifacts to: {artifacts_dir.resolve()}")
 
     return auc
 

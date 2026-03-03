@@ -1,0 +1,22 @@
+{
+  "model_name": "model_c_combined_tfidf_lr",
+  "created_utc": "2026-02-23T20:00:23.323314Z",
+  "framework": "scikit-learn",
+  "artifact": "model.joblib",
+  "positive_class": 1,
+  "target": "readmit_30d",
+  "seed": 7,
+  "inputs": {
+    "numeric": [
+      "age",
+      "sex",
+      "comorbidity_count",
+      "prior_admits",
+      "los_days"
+    ],
+    "text": [
+      "note_text"
+    ]
+  },
+  "notes": "Model C: ColumnTransformer(TF-IDF on note_text + passthrough numeric) -> LogisticRegression."
+}
