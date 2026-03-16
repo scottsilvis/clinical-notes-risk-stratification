@@ -230,10 +230,8 @@ helper function (as seen above) so that all models operate on the exact same dat
 avoids split-induced performance differences and allows changes in ROC-AUC to be attributed to 
 features rather than sampling noise.
 
-The next step of the project is to perform Exploratory Data Analysis to confirm the model before we 
-add the complexity of the language models. 
-
 ---
+
 
 
 
